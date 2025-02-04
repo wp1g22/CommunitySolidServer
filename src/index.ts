@@ -637,3 +637,7 @@ export * from './util/StringUtil';
 export * from './util/TermUtil';
 export * from './util/TimerUtil';
 export * from './util/Vocabularies';
+
+// Searching
+export * from './searching/SearchHandler';
+

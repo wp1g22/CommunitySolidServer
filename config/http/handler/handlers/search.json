@@ -4,7 +4,8 @@
       {
         "comment": "Generates Search results.",
         "@id": "urn:solid-server:default:SearchHandler",
-        "@type": "SearchHandler"
+        "@type": "SearchHandler",
+        "args_credentialsExtractor": { "@id": "urn:solid-server:default:CredentialsExtractor" }
       }
     ]
   }

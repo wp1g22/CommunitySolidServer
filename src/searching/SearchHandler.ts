@@ -44,6 +44,7 @@ export class SearchHandler extends HttpHandler {
           .end(JSON.stringify(error));
         } else {
           // 500 indicates an internal server error, possibly an error with PostgreSQL
+          this.logger.error(JSON.stringify(error));
           response
             .writeHead(500, { "Content-Type": "application/json" })
             .end(JSON.stringify(error));
@@ -73,12 +74,17 @@ export class SearchHandler extends HttpHandler {
   private async connectAndSearch(user: String, queryString : String) : Promise<String[]>{
     this.logger.info("Connect and Search");
     const results : String[] = [];
+    // const client = new Client({
+    //   host: 'localhost',         
+    //   port: 5432,               
+    //   user: 'test_user', 
+    //   password: 'Password1@',        
+    //   database: 'documents', 
+    // });
     const client = new Client({
-      host: 'localhost',         
-      port: 5432,               
-      user: 'test_user', 
-      password: 'Password1@',        
-      database: 'documents', 
+      host: process.cwd() + "/pg_socket",         
+      port: 5432,       
+      database: 'documents'
     });
     this.logger.info("Connecting...");
     await client.connect();

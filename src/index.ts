@@ -640,4 +640,5 @@ export * from './util/Vocabularies';
 
 // Searching
 export * from './searching/SearchHandler';
+export * from './init/PostgreSQLInitializer';
 

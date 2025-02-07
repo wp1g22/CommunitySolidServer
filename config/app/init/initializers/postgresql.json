@@ -1,0 +1,10 @@
+{
+    "@context": "https://linkedsoftwaredependencies.org/bundles/npm/@solid/community-server/^7.0.0/components/context.jsonld",
+    "@graph": [
+        {
+            "comment": "Initializes connection to PostgreSQL for indexing and searching.",
+            "@id": "urn:solid-server:default:PostgreSQLInitializer",
+            "@type": "PostgreSQLInitializer"
+        }
+    ]
+}

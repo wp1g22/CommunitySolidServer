@@ -7,7 +7,8 @@
     "css:config/app/init/initializers/seeding.json",
     "css:config/app/init/initializers/version.json",
     "css:config/app/init/initializers/workers.json",
-    "css:config/app/init/migration/base.json"
+    "css:config/app/init/migration/base.json",
+    "css:config/app/init/initializers/postgresql.json"
   ],
   "@graph": [
     {
@@ -63,6 +64,7 @@
       "@id": "urn:solid-server:default:CleanupInitializer",
       "@type": "SequenceHandler",
       "handlers": [
+        {"@id": "urn:solid-server:default:PostgreSQLInitializer"}
       ]
     }
   ]

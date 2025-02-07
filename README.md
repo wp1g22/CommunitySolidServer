@@ -1,4 +1,4 @@
-# Community Solid Server
+# Community Solid Server - POD Searching Functionality Added
 
 <img src="https://raw.githubusercontent.com/CommunitySolidServer/CommunitySolidServer/main/templates/images/solid.svg"
  alt="[Solid logo]" height="150" align="right"/>
@@ -12,44 +12,29 @@
 [![GitHub discussions](https://img.shields.io/github/discussions/CommunitySolidServer/CommunitySolidServer)](https://github.com/CommunitySolidServer/CommunitySolidServer/discussions)
 [![Chat on Gitter](https://badges.gitter.im/CommunitySolidServer/community.svg)](https://gitter.im/CommunitySolidServer/community)
 
-**The Community Solid Server is open software
-that provides you with a [Solid](https://solidproject.org/) Pod and identity.
-This Pod acts as your own personal storage space
-so you can share data with people and Solid applications.**
-
-As an open and modular implementation of the
-[Solid specifications](https://solidproject.org/TR/),
-the Community Solid Server is a great companion:
-
-- 🧑🏽 **for people** who want to try out having their own Pod
-
-- 👨🏿‍💻 **for developers** who want to quickly create and test Solid apps
-
-- 👩🏻‍🔬 **for researchers** who want to design new features for Solid
-
-And, of course, for many others who like to experience Solid.
-
 ## ⚡ Running the Community Solid Server
 
 Make sure you have [Node.js](https://nodejs.org/en/) 18.0 or higher.
 If this is your first time using Node.js,
 you can find instructions on how to do this [here](https://nodejs.org/en/download/package-manager).
 
-```shell
-npx @solid/community-server
-```
-
-Now visit your brand new server at [http://localhost:3000/](http://localhost:3000/)!
-
-To persist your pod's contents between restarts, use:
+In addition make sure you have postgresql installed on your OS. Currently this implementation will only support searching on linux machines. You may need to add pg_cert to your path.
 
 ```shell
-npx @solid/community-server -c @css:config/file.json -f data/
+git clone https://github.com/CommunitySolidServer/CommunitySolidServer.git
 ```
 
-In case you prefer to use Docker instead,
-you can find instructions for this and other methods in the
-[documentation](https://communitysolidserver.github.io/CommunitySolidServer/latest/usage/starting-server/).
+```shell
+cd CommunitySolidServer
+```
+
+```shell
+npm ci
+```
+
+```shell
+npm start -- -c @css:config/file.json -f data/
+```
 
 ## 🔧 Configure your server
 

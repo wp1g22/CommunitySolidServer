@@ -3,6 +3,7 @@ import { getLoggerFor } from '../logging/LogUtil';
 import { Initializer } from './Initializer';
 import { Client } from 'pg'; 
 import { exec, execSync } from 'child_process';
+import * as fs from 'fs';
 
 
 /**
@@ -11,21 +12,15 @@ import { exec, execSync } from 'child_process';
 export class PostgreSQLInitializer extends Initializer  {
   protected readonly logger = getLoggerFor(this);
 
-  public constructor() {
-    super();
-    this.logger.info("Initialize");
-  }
-
   public async canHandle(): Promise<void> {
-    this.logger.info("Can handle");
     // throw new NotImplementedError("No PostgreSQL demon running");
   }
 
   public async handle(): Promise<void> {
-    this.logger.info("Handle");
-    const socket_file : string = process.cwd() + "/pg_socket";
+    const UNIX_SOCKET_DIR : string = process.cwd() + "/pg_socket";
+    const PG_DATA_DIR : string = "postgresql";
     const conn_params = {
-      host: socket_file,         
+      host: UNIX_SOCKET_DIR,         
       port: 5432,               
       database: 'postgres' 
     };
@@ -38,23 +33,43 @@ export class PostgreSQLInitializer extends Initializer  {
       await client.connect();
     } catch(err) {
       this.logger.info("PostgreSQL not started, attemping to start...");
-      execSync("mkdir -p " + socket_file);
-      execSync("rm -rf postgresql");
-      execSync("initdb postgresql");
-      exec(`pg_ctl -D "postgresql" -o "-c unix_socket_directories='` + socket_file + `'" start`);
-      this.logger.info("Created new db");
-      await this.delay(50);
-      while(execSync(`pg_ctl -D "postgresql" -o "-c unix_socket_directories='` + socket_file + `'" status`).toString() === "pg_ctl: no server running")
-      {
-        this.logger.info("waiting");
-      }
       
-      this.logger.info("Connecting");
-      client = new Client(conn_params);
-      await client.connect();
-      this.logger.info("Connected!");
+      // If PG_DATA_DIR and UNIX_SOCKET_DIR both exist, assume db is setup correctly
+      if(
+        !(fs.existsSync(UNIX_SOCKET_DIR) && 
+        fs.lstatSync(UNIX_SOCKET_DIR).isDirectory() && 
+        fs.existsSync(PG_DATA_DIR) && 
+        fs.lstatSync(PG_DATA_DIR).isDirectory())){
+        this.logger.info("Formatting PostgreSQL instance...");
+        execSync("mkdir -p " + UNIX_SOCKET_DIR);
+        execSync("rm -rf " + PG_DATA_DIR);
+        execSync("initdb " + PG_DATA_DIR);
+      }
+      exec(`pg_ctl -D "` + PG_DATA_DIR  + `" -o "-c unix_socket_directories='` + UNIX_SOCKET_DIR + `'" start`);
+      // Wait for pg to be finished, cannot use execSync as will never return as child process never exits
+      // while(execSync(`pg_ctl -D "` + PG_DATA_DIR + `" -o "-c unix_socket_directories='` + UNIX_SOCKET_DIR + `'" status`).toString() === "pg_ctl: no server running")
+      // {
+      //   this.logger.info("waiting");
+      // }
+      for(let i = 0; i < 100; i++) {
+        try{
+          await this.delay(10);
+          client = new Client(conn_params);
+          await client.connect();
+          break;
+        } catch(err) {
+          this.logger.verbose("Waiting for PostgreSQL to start... " + JSON.stringify(err));
+        }
+        if(i == 99){
+          const err_msg = "PostgreSQL did not start within 10s";
+          this.logger.error(err_msg);
+          throw new Error(err_msg);
+        }
+      }
+      // client = new Client(conn_params);
+      // await client.connect();
     }
-    // TODO :: Start PostgreSQL if connection fails
+
     this.logger.info("Connected to PostgreSQL!");
 
     const dbCheck = await client.query("SELECT 1 FROM pg_database WHERE datname = '" + DB_NAME + "'");
